@@ -47,7 +47,8 @@ async def async_main():
     worker = partial(rb.work_forever,count_point="bz1",counter=task_couter,max_step=100)
 
     loop = asyncio.get_running_loop()
-    with concurrent.futures.ProcessPoolExecutor() as pool:
+    #with concurrent.futures.ProcessPoolExecutor() as pool:
+    with concurrent.futures.ThreadPoolExecutor() as pool:
         #await loop.run_in_executor(pool, rb.work_forever,"bz1",task_couter,100)
         await loop.run_in_executor(pool, worker)
     print("Running!!!!!!!!!!!!!!!!!!")
@@ -69,4 +70,4 @@ async def async_main():
 if __name__ == "__main__":
     #import fire
     #comm_task_on_pc(["test01"],10)
-    #asyncio.run(async_main())
+    asyncio.run(async_main())

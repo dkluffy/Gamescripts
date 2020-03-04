@@ -12,10 +12,14 @@ import concurrent
 from functools import partial
 
 from multiprocessing import Process
+#from multiprocessing import freeze_support
 from pynput import keyboard
 
-def comm_task_on_pc(targets,max_step=100,imgsdir="1080p"):
+p_list=[] #用于存储进程
+
+def comm_task_on_pc(targets,max_step=100,count_point="bc_tz",imgsdir="yys1080p"):
     #读取模板文件
+    targets = targets.split()
     targets = vision.read_templates(targets,imgsdir)
     
     ###设置callback###
@@ -24,6 +28,9 @@ def comm_task_on_pc(targets,max_step=100,imgsdir="1080p"):
     #计数和DEBUG用的callback
     task_couter = Counter()
     cb_print = PrintCallBack("printer",task_couter,False)
+    #为了计数准确，初始化task_couter
+    for k in targets.keys():
+        task_couter[k]=0
     
     #初始化executor，并绑定callback
     executor = Executor(PC_bind,[cb_print,cb_delay])
@@ -35,16 +42,16 @@ def comm_task_on_pc(targets,max_step=100,imgsdir="1080p"):
     rb = robot.Robot("rb01",executor,sensor)
     robot.Robot.active(rb) #激活机器人
 
-    #rb.max_step = max_step #防止无限循环，可以不设置
-
-    
-    p0 = Process(target=rb.work_forever, args=("bz1",task_couter,100))
+    #rb.max_step = max_step #防止无限循环，可以不设置    
+    p0 = Process(target=rb.work_forever, args=(count_point,task_couter,max_step))
     p0.start()
-    
-    return p0
+    p_list.append(p0)
+
+    #不能有返回值，否则和fire以及Listener冲突，导致热键无效
 
 
-p_list=[]
+
+
 def killer():
     print("Kill All...")
     for p in p_list:
@@ -56,7 +63,9 @@ def press_f12(key):
         return False
 
 if __name__ == "__main__":
-    #import fire
-    p_list.append(comm_task_on_pc(["test01"],10))
+    import fire
+    #freeze_support()
+    fire.Fire(comm_task_on_pc)
     with keyboard.Listener(on_press=press_f12) as listener:
         listener.run()
+

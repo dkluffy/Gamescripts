@@ -2,9 +2,10 @@ import numpy as np
 import pyautogui as pag
 import cv2 as cv
 import os
-
+import random
 
 ON_DEBUG = False
+is_SHIFT_COORDS=True
 
 # methods = ['cv.TM_CCOEFF', 'cv.TM_CCOEFF_NORMED', 'cv.TM_CCORR',
 #             'cv.TM_CCORR_NORMED', 'cv.TM_SQDIFF', 'cv.TM_SQDIFF_NORMED']
@@ -13,6 +14,7 @@ T_Thredshold = 0.8
 T_Filter = True
 
 Validate_IMG_EXT = ["png","jpeg","jpg"]
+
 
 def caper_pc():
     """
@@ -108,12 +110,18 @@ def shift_coords(func):
         co,st = func(*args)
         # if ON_DEBUG:
         #     return co,st
-        co = np.array(co)
-        co_dalt = np.random.randint(0,20,co.shape)
-        co = co + co_dalt
+        #co = np.array(co)
+        #co_dalt = np.random.randint(0,20,co.shape)
+        for i in range(len(co)):
+            co[i] = (co[i][0]+random.randint(1,20),co[i][1]+random.randint(1,20))
+        #co = co + co_dalt
         return co,st
     return shifter
 
+#BUG: AttributeError: Can't pickle local object 'shift_coords.<locals>.shifter'
+#还无法解释，为什么在这里加装饰函数后，多进程模式会有这个错误（调用方式的问题）
+#但是多线程和单线程不会出错
+#为了支持多进程，暂时弃用
 #@shift_coords
 def matcher_comm(input_img,targets):
     coords = []
@@ -123,4 +131,7 @@ def matcher_comm(input_img,targets):
         if len(pts)>0:
             coords+=pts
             status+=([t]*len(pts))
+    if is_SHIFT_COORDS:
+        for i in range(len(coords)):
+            coords[i] = (coords[i][0]+random.randint(1,20),coords[i][1]+random.randint(1,20))
     return coords,status

@@ -25,6 +25,7 @@ def enumWindows():
 
 
 def getWindowsRectByName(name):
+    #BUG:在4K显示器下，最大只能显示2K
     """
     return: [] 包含name的窗口的坐标 tagRECT
 
@@ -34,7 +35,7 @@ def getWindowsRectByName(name):
           LONG right;
           LONG bottom;
         } RECT, *PRECT, *NPRECT, *LPRECT;
-    BUG:在4K显示器下，最大只能显示2K
+    
     """
     wins = enumWindows()
     result = []

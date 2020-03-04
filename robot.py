@@ -29,7 +29,7 @@ class Robot:
         self.sda = sda
         self.cmd_queue = [] #多线程/进程情况下，数组安全么？
 
-        self.max_step = 99999 #最大命令组数，不管是否有效，都算一组
+        self.max_step = 10000 #最大命令组数，不管是否有效，都算一组
         self.quiet = False
         
         self.sensor = sensor
@@ -78,20 +78,26 @@ class Robot:
         self.__class__.active_robots.pop(self.name,None)
 
     def co_worker(self):
+        t = 0
         while len(self.cmd_queue)>0:
             cmd = self.cmd_queue.pop(0)
             self.executor([cmd])
+            t+=1
         self.executor(self.__class__.dummy_cmds)
+        return t
         
     def solo_worker(self):
 
         coords,status = self.sensor()
+
         cmds = self.bind_status(coords,status)
 
-        if len(cmds)==0 or cmds is None:
-            self.executor(self.gen_dummy_cmds())
-        else:
-            self.executor(cmds)
+        # if len(cmds)==0 or cmds is None:
+        #     self.executor(self.gen_dummy_cmds())
+        # else:
+        #     self.executor(cmds)
+        self.executor(cmds)
+        return len(cmds)
 
     def work_forever(self,count_point=None,counter=None,max_step=-1):
         """要么不设置任何参数，要么三个参数全部设置"""
@@ -104,9 +110,13 @@ class Robot:
             print("Warning: didn't set `max_step` and counter.")
             max_step = self.max_step
             print("Fallback to use `self.max_step`",max_step)
+        
+        max_total_steps = max_step
+        if len(counter.keys())>1:
+            max_total_steps = max_step*len(counter.keys())
 
         if not self.quiet:
-            for _ in tqdm(range(max_step),desc=self.name,ascii=True):
+            for i in tqdm(range(max_total_steps),desc=self.name,ascii=True):
                 # 这个特性限制了并发，应该禁用
                 # 只能在ThreadPoolExecutor下使用并发，多线程并发不行
                 # active_rb = self.__class__.active_robots.keys()
@@ -114,9 +124,17 @@ class Robot:
                 #     print("Dead:shutdown from outside!!")
                 #     break
                 if count_point and counter[count_point]>max_step:
-                    print("Dead:Max step reached!!!")
+                    print("Dead:Max step reached!!!") #永远不会执行
                     break
-                worker()
+                while 1:
+                    if worker() > 0: break
+                if (i % 20) == 0:
+                    tqdm.write("Summary:[ %s ] -- %s" % (i,counter))
+            return
+
+        while 1:
+            worker()
+        return
 
 
 

@@ -9,7 +9,7 @@ test_imgdir = "I:\\Code_Public\\try_yolov3\\images"
 bc_tz_gray = cv.imread(os.path.join(test_imgdir,"yys0008.jpg"),0)
 bc_tz = cv.imread(os.path.join(test_imgdir,"yys0006.jpg"),0)
 
-imdir = "1080p"
+imdir = "yys1080p"
 
 targets = ["bc_tz2","bc_zb","bc_win1","bc_win2","testicon01"]
 
@@ -42,7 +42,7 @@ def test_read():
 
 def test_match_comm(test_read):
     import numpy as np
-    img = cv.imread("I:\\Code_Public\\Gamescripts\\1080p\\test\\test01.jpg",0)
+    img = cv.imread("I:\\Code_Public\\Gamescripts\\yys1080p\\test\\test01.jpg",0)
     co,st = vision.matcher_comm(img,test_read)
     print(co,st)
 
