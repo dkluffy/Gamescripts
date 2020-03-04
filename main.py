@@ -49,9 +49,6 @@ def comm_task_on_pc(targets,max_step=100,count_point="bc_tz",imgsdir="yys1080p")
 
     #不能有返回值，否则和fire以及Listener冲突，导致热键无效
 
-
-
-
 def killer():
     print("Kill All...")
     for p in p_list:

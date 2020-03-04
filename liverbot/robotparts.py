@@ -1,5 +1,6 @@
 from time import sleep
 from collections import namedtuple,Counter
+import random
 
 class ExecutorCallBack(object):
     """
@@ -83,7 +84,7 @@ class DelayCallBack(ExecutorCallBack):
         self.delay_run = delay_run
 
     def on_execute_end(self,cmd):
-        sleep(self.delay_exec)
+        sleep(self.delay_exec+random.random())
 
     def on_run_end(self,**kwargs):
         sleep(self.delay_run)
