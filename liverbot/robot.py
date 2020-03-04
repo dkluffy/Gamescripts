@@ -1,5 +1,5 @@
 from collections import Counter
-from devicebind import CMD,sda_map
+from liverbot.devicebind import CMD,sda_map
 import random
 from tqdm import tqdm
 

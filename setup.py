@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
-    name="deeprobot",
-    version="0.1a",
+    name="liverbot",
+    version="0.1b",
     packages=find_packages(),
     scripts=["main.py"],
 

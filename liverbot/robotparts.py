@@ -2,6 +2,8 @@ from time import sleep
 from collections import namedtuple,Counter
 import random
 
+from liverbot.devicebind import sda_map,CMD
+
 class ExecutorCallBack(object):
     """
     用于实现，统计，延迟,通信等功能
@@ -89,8 +91,6 @@ class DelayCallBack(ExecutorCallBack):
     def on_run_end(self,**kwargs):
         sleep(self.delay_run)
 
-
-from devicebind import sda_map,CMD
 
 class VisionSensor(object):
     """

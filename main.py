@@ -1,9 +1,9 @@
 from collections import Counter
 
-import robot
-from robotparts import Executor,VisionSensor,PrintCallBack,DelayCallBack
-from devicebind import PC_bind
-import vision
+from liverbot import robot
+from liverbot.robotparts import Executor,VisionSensor,PrintCallBack,DelayCallBack
+from liverbot.devicebind import PC_bind
+from liverbot import vision
 
 
 import asyncio
