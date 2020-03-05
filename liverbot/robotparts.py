@@ -4,6 +4,7 @@ import random
 
 from liverbot.devicebind import sda_map,CMD
 
+#TODO:统一接口参数和返回值
 class ExecutorCallBack(object):
     """
     用于实现，统计，延迟,通信等功能
@@ -17,15 +18,16 @@ class ExecutorCallBack(object):
     def on_execute_end(self,cmd):
         pass
 
-    def on_run_begin(self,**kwargs):
+    def on_run_begin(self,*args):
         pass
 
-    def on_run_end(self,**kwargs):
+    def on_run_end(self,*args):
         pass
 
+#TODO:要实现通信，需要继承Executor，重载各个方法
 class Executor(object):
     """
-    执行方法
+    执行命令 - 简单版
     """
     def __init__(self,devicebind,callbacks=None):
         self.callbacks = []
@@ -33,7 +35,7 @@ class Executor(object):
             self.callbacks = callbacks
         self.devicebind = devicebind
 
-    def _run_callback(self,method,cmd):
+    def _run_callback(self,method,cmd=None):
         for cb in self.callbacks:
             cb.__getattribute__(method)(cmd)
         
@@ -44,13 +46,18 @@ class Executor(object):
         self._run_callback("on_execute_end",cmd)
 
     def run(self,cmds):
+        result = 0
+        self._run_callback("on_run_begin",cmds)
+
         for cmd in cmds:
             try:
                 self.exec_cmd(cmd)
             except Exception as e:
                 print(e,"failed to exec cmd:",cmd)
                 continue
-        return 0
+
+        self._run_callback("on_run_end",cmds)
+        return result
 
     def __call__(self,cmds):
         return self.run(cmds)
@@ -64,11 +71,11 @@ class PrintCallBack(ExecutorCallBack):
         self.counter["total"] = 0
         self.verbose = verbose
         
-    def on_execute_begin(self,cmd):
+    def on_execute_begin(self,cmd=None):
         if self.verbose:
             print("...Runing CMD: ",cmd)
     
-    def on_execute_end(self,cmd):
+    def on_execute_end(self,cmd=None):
         self.counter[cmd.device]+=1
         self.counter[cmd.status]+=1
         self.counter["total"]+=1
@@ -85,10 +92,10 @@ class DelayCallBack(ExecutorCallBack):
         self.delay_exec = delay_exec
         self.delay_run = delay_run
 
-    def on_execute_end(self,cmd):
+    def on_execute_end(self,cmd=None):
         sleep(self.delay_exec+random.random())
 
-    def on_run_end(self,**kwargs):
+    def on_run_end(self,*args):
         sleep(self.delay_run)
 
 
